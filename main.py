@@ -1,12 +1,15 @@
 from flask import Flask, render_template, request
 from flask.ext.sqlalchemy import SQLAlchemy
+from flask.ext.htpasswd import HtPasswdAuth
 import requests
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///video.db'
+app.config['FLASK_HTPASSWD_PATH'] = '/home/memtube/.htpasswd'
+app.config['FLASK_SECRET'] = 'Hey Hey Kids, secure me!'
+htpasswd = HtPasswdAuth(app)
 db = SQLAlchemy(app)
-ApiKeyYoutube = 'ВАШ_КЛЮЧ_API'
+ApiKeyYoutube = 'AIzaSyCbduO-H4OZ6_kwSgAj1QO9NDVrkCp9mXw'
 Googleurl = 'https://www.googleapis.com/youtube/v3/'
-
 
 class Channel(db.Model):
     __tablename__ = 'channel'
@@ -17,7 +20,6 @@ class Channel(db.Model):
     def __init__(self, channelid=None, name=None):
         self.channelid = channelid
         self.name = name
-
 
 class Video(db.Model):
     __tablename__ = 'video'
@@ -30,9 +32,9 @@ class Video(db.Model):
 # db.drop_all()
 db.create_all()
 
-
 @app.route('/', methods=['GET', 'POST'])
-def channels():
+@htpasswd.required
+def channels(user):
     if request.method == 'POST':
         channelid = request.form['url'].split("/channel/")[-1]
         apiurl = Googleurl + 'channels?part=snippet&id=' + \
