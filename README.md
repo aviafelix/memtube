@@ -3,6 +3,7 @@
 
 
 Процесс обновления:
+
   cd /home/memtube/
   
   cp video.db /home/video.db
