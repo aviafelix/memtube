@@ -4,6 +4,8 @@
 
 Процесс обновления:
 
+  /etc/init.d/memtube stop
+
   cd /home/memtube/
   
   cp video.db /home/video.db
@@ -17,3 +19,5 @@
   cp video.db /home/memtube/video.db
   
   rm video.db
+  
+  /etc/init.d/memtube start
