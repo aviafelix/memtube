@@ -52,7 +52,7 @@ def channels(user):
 def video_list(channelid, page):
     apiurl = Googleurl + 'search?part=snippet&channelId=' + channelid + \
         '&key=' + ApiKeyYoutube + '&maxResults=9&order=date&type=video'
-    if page != 'first_page':  # Навигация по страничкам канала
+    if page != 'first_page':
         apiurl = apiurl + '&pageToken=' + page
     j = requests.get(apiurl).json()
     n = 0
