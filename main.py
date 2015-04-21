@@ -85,4 +85,4 @@ def _viwed():
 
 if __name__ == "__main__":
         # app.run()
-        app.run(host='0.0.0.0',port=80)
+        app.run(host='188.120.229.137',port=80)
