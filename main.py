@@ -7,6 +7,14 @@ import requests
 import ConfigParser
 from functools import wraps
 
+# Handling forms
+from flask.ext.wtf import Form
+from wtforms import StringField, PasswordField, SubmitField
+from wtforms.validators import Required
+
+# Bootstrap
+from flask.ext.bootstrap import Bootstrap
+
 config = ConfigParser.RawConfigParser()
 try:
     config.readfp(open(r'settings.conf'))
@@ -24,9 +32,11 @@ app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///video.db'
 db = SQLAlchemy(app)
 Googleurl = 'https://www.googleapis.com/youtube/v3/'
+bootstrap = Bootstrap(app)
 
 # This is for handling sessions
-app.secret_key = '\xf0\x90\x10\xe5\x01&\x95\x12\x83u\x0caI\x18\xd2\xc2\xc9\x93\xc5\x9d\xa1kpl\xf1\xe0T\x88\x97ni\xda\xc4\xfa\xfd\x969\xc7\xe6\xe2\xbb\xcexq\xe5\xb0\x8f\xf0\x7f\xa2\x8e8)\xe9m\xadT\x84\xd1\xf6\xa3\xad\xf6\xdc'
+app.config['SECRET_KEY'] = '\xf0\x90\x10\xe5\x01&\x95\x12\x83u\x0caI\x18\xd2\xc2\xc9\x93\xc5\x9d\xa1kpl\xf1\xe0T\x88\x97ni\xda\xc4\xfa\xfd\x969\xc7\xe6\xe2\xbb\xcexq\xe5\xb0\x8f\xf0\x7f\xa2\x8e8)\xe9m\xadT\x84\xd1\xf6\xa3\xad\xf6\xdc'
+
 
 # login required decorator
 def login_required(f):
@@ -38,6 +48,12 @@ def login_required(f):
             flash('You need to login first.')
             return redirect(url_for('login'))
     return wrap
+
+
+class LoginForm(Form):
+    uname = StringField('Login', validators=[Required()])
+    pwd = PasswordField('Password', validators=[Required()])
+    submit = SubmitField('Login')
 
 
 class Channel(db.Model):
@@ -65,20 +81,21 @@ db.create_all()
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
-    error = None
-    if request.method == 'POST':
-        if request.form['username'] != my_username or request.form['password'] != my_password:
-            error = 'Invalid login credentials. Please try again.'
+    form = LoginForm()
+    if form.validate_on_submit():
+        if form.uname.data != my_username or form.pwd.data != my_password:
+            flash('Invalid login credentials. Please try again.')
         else:
             session['logged_in'] = True
             return redirect(url_for('channels'))
-    return render_template('login.html', error=error)
+    return render_template('login.html', form=form)
 
 
 @app.route('/logout')
 def logout():
     session.pop('logged_in', None)
     return redirect(url_for('channels'))
+
 
 @app.route('/', methods=['GET', 'POST'])
 @login_required
