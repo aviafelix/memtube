@@ -7,10 +7,8 @@ import requests
 import ConfigParser
 from functools import wraps
 
-# Handling forms
-from flask.ext.wtf import Form
-from wtforms import StringField, PasswordField, SubmitField
-from wtforms.validators import Required
+# Import forms
+from forms import LoginForm
 
 # Bootstrap
 from flask.ext.bootstrap import Bootstrap
@@ -48,12 +46,6 @@ def login_required(f):
             flash('You need to login first.')
             return redirect(url_for('login'))
     return wrap
-
-
-class LoginForm(Form):
-    uname = StringField('Login', validators=[Required()])
-    pwd = PasswordField('Password', validators=[Required()])
-    submit = SubmitField('Login')
 
 
 class Channel(db.Model):
