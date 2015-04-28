@@ -1,8 +1,12 @@
 {% extends "bootstrap/base.html" %}
 {% block title %}Memtube{% endblock %}
+{% block styles %}
+{{ super() }}
+<style>body { padding-top: 70px; }</style>
+{% endblock %}
 
 {% block navbar %}
-<nav class="navbar navbar-inverse" role="navigation">
+<nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
     <div class="container">
 	<div class="navbar-header">
 	    <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target=".navbar_collapse">
@@ -40,4 +44,5 @@
 
 {% block scripts %}
 {{ super() }}
+<script src="/static/js/viwed.js"></script>
 {% endblock %}
