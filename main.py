@@ -1,11 +1,51 @@
-from flask import Flask, render_template, request
+# -*- coding: utf-8
+
+from flask import Flask, render_template, request, session, redirect, \
+        url_for, flash
 from flask.ext.sqlalchemy import SQLAlchemy
 import requests
+import ConfigParser
+from functools import wraps
+
+# Import forms
+from forms import LoginForm
+
+# Bootstrap
+from flask.ext.bootstrap import Bootstrap
+
+config = ConfigParser.RawConfigParser()
+try:
+    config.readfp(open(r'settings.conf'))
+except IOError as e:
+    print e
+
+try:
+    ApiKeyYoutube = config.get('Main', 'api_key')
+    my_username = config.get('Main', 'username')
+    my_password = config.get('Main', 'password')
+except (ConfigParser.NoSectionError, ConfigParser.NoOptionError) as e:
+    print e
+
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///video.db'
 db = SQLAlchemy(app)
-ApiKeyYoutube = 'ВАШ_КЛЮЧ_API'
 Googleurl = 'https://www.googleapis.com/youtube/v3/'
+bootstrap = Bootstrap(app)
+
+# This is for handling sessions
+app.config['SECRET_KEY'] = '\xf0\x90\x10\xe5\x01&\x95\x12\x83u\x0caI\x18\xd2\xc2\xc9\x93\xc5\x9d\xa1kpl\xf1\xe0T\x88\x97ni\xda\xc4\xfa\xfd\x969\xc7\xe6\xe2\xbb\xcexq\xe5\xb0\x8f\xf0\x7f\xa2\x8e8)\xe9m\xadT\x84\xd1\xf6\xa3\xad\xf6\xdc'
+
+
+# login required decorator
+def login_required(f):
+    @wraps(f)
+    def wrap(*args, **kwargs):
+        if 'logged_in' in session:
+            return f(*args, **kwargs)
+        else:
+            flash('You need to login first.')
+            return redirect(url_for('login'))
+    return wrap
 
 
 class Channel(db.Model):
@@ -31,7 +71,26 @@ class Video(db.Model):
 db.create_all()
 
 
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    form = LoginForm()
+    if form.validate_on_submit():
+        if form.uname.data != my_username or form.pwd.data != my_password:
+            flash('Invalid login credentials. Please try again.')
+        else:
+            session['logged_in'] = True
+            return redirect(url_for('channels'))
+    return render_template('login.html', form=form)
+
+
+@app.route('/logout')
+def logout():
+    session.pop('logged_in', None)
+    return redirect(url_for('channels'))
+
+
 @app.route('/', methods=['GET', 'POST'])
+@login_required
 def channels():
     if request.method == 'POST':
         channelid = request.form['url'].split("/channel/")[-1]
@@ -47,6 +106,7 @@ def channels():
 
 
 @app.route('/channel-videos-list/<channelid>/<page>/')
+@login_required
 def video_list(channelid, page):
     apiurl = Googleurl + 'search?part=snippet&channelId=' + channelid + \
         '&key=' + ApiKeyYoutube + '&maxResults=9&order=date&type=video'
@@ -65,6 +125,7 @@ def video_list(channelid, page):
 
 
 @app.route('/view-video/<channelid>/<videoid>/')
+@login_required
 def view_video(channelid, videoid):
     channel_name = Channel.query.filter(Channel.channelid == channelid).first()
     v = Video.query.filter(Video.videoid == videoid).first()
@@ -73,6 +134,7 @@ def view_video(channelid, videoid):
 
 
 @app.route('/_viwed')
+@login_required
 def _viwed():
     videoid = request.args.get('videoid')
     me = Video(videoid)
