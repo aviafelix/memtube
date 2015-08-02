@@ -1,10 +1,11 @@
 {% extends "layout.html" %}
 {% block title %}Просмотр видео{% endblock %}
+<!-- {% block body %} -->
 {% block page_content %}
 
 
 <ol class="breadcrumb">
-    <a href="#" onclick="location.href = document.referrer; return false;">Назад к списку канала &laquo;{{ namec.name }}&raquo;</a>
+	<a href="#" onclick="location.href = document.referrer; return false;">Назад к списку канала &laquo;{{ namec.name }}&raquo;</a>
 </ol>
 
 <div class="embed-responsive embed-responsive-16by9">
@@ -12,6 +13,9 @@
 </div>
 
 <br>
+<!-- >
+<iframe width="560" height="315" src="https://www.youtube.com/embed/{{ idv }}" frameborder="0" allowfullscreen></iframe>
+</ -->
 
 {% if not v.id %}
 <p id="butt_{{ idv }}"><a href="#" data-id="{{ idv }}" class="viwed btn btn-primary" role="button">Отметить как просмотренное</a></p>

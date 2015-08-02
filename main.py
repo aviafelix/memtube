@@ -33,14 +33,12 @@ app.config['FLASK_HTPASSWD_PATH'] = '/home/memtube/.htpasswd'
 app.config['FLASK_SECRET'] = 'Hey Hey Kids, secure me!'
 htpasswd = HtPasswdAuth(app)
 db = SQLAlchemy(app)
-ApiKeyYoutube = 'AIzaSyCbduO-H4OZ6_kwSgAj1QO9NDVrkCp9mXw'
->>>>>>> 226d07972e6d0ad21d255b7db3210e724d68b09b
+ApiKeyYoutube = 'ВАШ_КЛЮЧ_API' # 'AIzaSyCbduO-H4OZ6_kwSgAj1QO9NDVrkCp9mXw'
 Googleurl = 'https://www.googleapis.com/youtube/v3/'
 bootstrap = Bootstrap(app)
 
 # This is for handling sessions
 app.config['SECRET_KEY'] = '\xf0\x90\x10\xe5\x01&\x95\x12\x83u\x0caI\x18\xd2\xc2\xc9\x93\xc5\x9d\xa1kpl\xf1\xe0T\x88\x97ni\xda\xc4\xfa\xfd\x969\xc7\xe6\xe2\xbb\xcexq\xe5\xb0\x8f\xf0\x7f\xa2\x8e8)\xe9m\xadT\x84\xd1\xf6\xa3\xad\xf6\xdc'
-
 
 # login required decorator
 def login_required(f):
@@ -74,7 +72,6 @@ class Video(db.Model):
 # db.drop_all()
 db.create_all()
 
-
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     form = LoginForm()
@@ -86,15 +83,13 @@ def login():
             return redirect(url_for('channels'))
     return render_template('login.html', form=form)
 
-
 @app.route('/logout')
 def logout():
     session.pop('logged_in', None)
     return redirect(url_for('channels'))
 
-
 @app.route('/', methods=['GET', 'POST'])
-#@login_required
+@login_required
 @htpasswd.required
 def channels(user):
     if request.method == 'POST':
@@ -109,13 +104,12 @@ def channels(user):
 
     return render_template("channels.html", rows=Channel.query.all())
 
-
 @app.route('/channel-videos-list/<channelid>/<page>/')
-# @login_required
+@login_required
 def video_list(channelid, page):
     apiurl = Googleurl + 'search?part=snippet&channelId=' + channelid + \
         '&key=' + ApiKeyYoutube + '&maxResults=9&order=date&type=video'
-    if page != 'first_page':
+    if page != 'first_page':  # Навигация по страничкам канала
         apiurl = apiurl + '&pageToken=' + page
     j = requests.get(apiurl).json()
     n = 0
@@ -128,18 +122,16 @@ def video_list(channelid, page):
     channel_name = Channel.query.filter(Channel.channelid == channelid).first()
     return render_template("video_list.html", allinfo=j, namec=channel_name)
 
-
 @app.route('/view-video/<channelid>/<videoid>/')
-# @login_required
+@login_required
 def view_video(channelid, videoid):
     channel_name = Channel.query.filter(Channel.channelid == channelid).first()
     v = Video.query.filter(Video.videoid == videoid).first()
     return render_template("view_video.html", namec=channel_name, idv=videoid,
                            v=v)
 
-
 @app.route('/_viwed')
-# @login_required
+@login_required
 def _viwed():
     videoid = request.args.get('videoid')
     me = Video(videoid)
@@ -147,9 +139,8 @@ def _viwed():
     db.session.commit()
     return ""
 
-
 if __name__ == "__main__":
         # app.run()
-        # app.debug = True
-        app.run(host='188.120.229.137', port=80)
-        # app.run(host='0.0.0.0')
+        app.debug = True
+        # app.run(host='188.120.229.137',port=80)
+        app.run(host='0.0.0.0')

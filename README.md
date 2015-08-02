@@ -15,6 +15,20 @@ http://memtube.com
 
 ![alt text](http://habrastorage.org/files/6b9/b45/11b/6b9b4511ba284656b7ce3b381967d990.png "Logo Title Text 1")
 
+### Процесс обновления:
+
+  /etc/init.d/memtube stop
+  cd /home/memtube/
+  cp video.db /home/video.db
+  cp .htpasswd /home/.htpasswd
+  cd /home/
+  rm -r memtube
+  git clone https://github.com/cema93/memtube
+  cp video.db /home/memtube/video.db
+  cp .htpasswd /home/memtube/.htpasswd
+  rm video.db
+  /etc/init.d/memtube start
+
 #### P.S.
 
 Это сингл-юзер версия приложения. Данные о пользователе, так же как и Youtube
@@ -25,29 +39,3 @@ api_key = s0me-1etters-and-nUmbers
 username = your_user_name
 password = your_password
 ```
-
-#### Запоминаем просмотренные видео на youtube
-
-Процесс обновления:
-
-  /etc/init.d/memtube stop
-
-  cd /home/memtube/
-  
-  cp video.db /home/video.db
-  
-  cp .htpasswd /home/.htpasswd
-  
-  cd /home/
-  
-  rm -r memtube
-  
-  git clone https://github.com/cema93/memtube
-  
-  cp video.db /home/memtube/video.db
-  
-  cp .htpasswd /home/memtube/.htpasswd
-  
-  rm video.db
-  
-  /etc/init.d/memtube start
